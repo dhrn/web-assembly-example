@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebAssembly C Example</title>
+  </head>
+  <body>
+    <h1>WebAssembly C Example</h1>
+
+    <form id="calculatorForm">
+      <label for="num1">Enter the first number:</label>
+      <br />
+      <input type="number" id="num1" name="num1" required />
+
+      <br />
+
+      <label for="num2">Enter the second number:</label>
+      <br />
+      <input type="number" id="num2" name="num2" required />
+
+      <br />
+      <button type="button" onclick="calculateSum()">Calculate Sum</button>
+    </form>
+
+    <p id="result"></p>
+
+    <script>
+      // Load and run the WebAssembly module
+      async function loadAndRunWasm() {
+        const response = await fetch('public/add.wasm');
+        const bytes = await response.arrayBuffer();
+        const { instance } = await WebAssembly.instantiate(bytes);
+
+        // Expose the instance globally for easy access in other functions
+        window.wasmInstance = instance;
+      }
+
+      // Function to calculate the sum using the WebAssembly module
+      function calculateSum() {
+        // Get input values from the form
+        const num1 = parseInt(document.getElementById('num1').value, 10);
+        const num2 = parseInt(document.getElementById('num2').value, 10);
+
+        // Call the add function from C with input values
+        const result = window.wasmInstance.exports.add(num1, num2);
+
+        // Display the result in the HTML
+        document.getElementById('result').innerHTML = `Result: ${result}`;
+      }
+
+      // Load and run the WebAssembly module when the page is loaded
+      loadAndRunWasm();
+    </script>
+  </body>
+</html>
